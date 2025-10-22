@@ -1,0 +1,26 @@
+# Directorios de build de ROS2
+build/
+install/
+log/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Configuraciones locales
+*.local
+.catkin_workspace
+.colcon_workspace

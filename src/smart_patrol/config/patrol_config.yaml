@@ -1,0 +1,22 @@
+/**:
+  ros__parameters:
+    # Parámetros de navegación
+    goal_tolerance: 0.3              # metros para considerar llegada
+    wait_time_at_waypoint: 3.0      # segundos de espera en cada punto
+    patrol_rate: 5.0                 # Hz del loop principal
+    loop_forever: true               # patrullar infinitamente
+    
+    # Parámetros de seguridad
+    max_distance_from_path: 2.0      # metros máximo de desviación
+    drift_threshold: 0.20            # 20% de drift para pausar
+    enable_auto_pause_on_drift: true
+    
+    # Parámetros de odometría
+    odom_topic: '/state_estimation'
+    waypoint_topic: '/way_point'
+    
+    # Archivo de waypoints
+    waypoints_file: '/home/unitree/autonomy_ws/src/smart_patrol/waypoints/default_route.yaml'
+    
+    # Modo debug
+    verbose_logging: true

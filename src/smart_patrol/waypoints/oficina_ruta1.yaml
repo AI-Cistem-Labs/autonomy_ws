@@ -1,0 +1,13 @@
+waypoints:
+  home:
+    x: 0.003
+    y: -0.059
+    z: -0.004
+  entrada:
+    x: -1.428
+    y: -2.632
+    z: -0.152
+  entrada_patio:
+    x: -8.536
+    y: -3.713
+    z: -0.741

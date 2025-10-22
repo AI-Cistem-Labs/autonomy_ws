@@ -1,0 +1,13 @@
+waypoints:
+  home:
+    x: 0.031
+    y: -0.011
+    z: 0.002
+  primera_esquina\:
+    x: 3.159
+    y: 0.42
+    z: 0.073
+  entrada_oficina:
+    x: 2.481
+    y: 7.718
+    z: -0.163

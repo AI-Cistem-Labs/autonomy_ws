@@ -1,0 +1,4 @@
+[submodule "src/autonomy_stack_go2"]
+	path = src/autonomy_stack_go2
+	url = https://github.com/mgomez-cistemlabs/autonomy_stack_go2
+        branch = foxy-humble

@@ -1,0 +1,20 @@
+waypoints:
+  punto_inicio:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  
+  punto_1:
+    x: 2.0
+    y: 0.0
+    z: 0.0
+  
+  punto_2:
+    x: 2.0
+    y: -2.0
+    z: 0.0
+  
+  punto_3:
+    x: 0.0
+    y: -2.0
+    z: 0.0
