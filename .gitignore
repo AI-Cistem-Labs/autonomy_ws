@@ -1,26 +1,83 @@
-# Directorios de build de ROS2
+# ==================================
+# ROS2 Build Directories
+# ==================================
 build/
 install/
 log/
 
-# Archivos de Python
+# ==================================
+# ROS1 (por compatibilidad)
+# ==================================
+devel/
+logs/
+bin/
+lib/
+msg_gen/
+srv_gen/
+msg/*Action.msg
+msg/*ActionFeedback.msg
+msg/*ActionGoal.msg
+msg/*ActionResult.msg
+msg/*Feedback.msg
+msg/*Goal.msg
+msg/*Result.msg
+msg/_*.py
+build_isolated/
+devel_isolated/
+*.cfgc
+/cfg/cpp/
+/cfg/*.py
+srv/_*.py
+CATKIN_IGNORE
+
+# ==================================
+# Python
+# ==================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+*.pyc
 
-# IDEs
+# ==================================
+# IDEs y Editores
+# ==================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.project
+.cproject
+CMakeLists.txt.user
+qtcreator-*
+*.user
+.#*
 
-# Archivos del sistema
+# ==================================
+# Archivos del Sistema
+# ==================================
 .DS_Store
 Thumbs.db
 
+# ==================================
+# Documentación generada
+# ==================================
+*.dox
+*.wikidoc
+/planning/cfg
+/planning/docs
+/planning/src
+
+# ==================================
+# Datos y Logs
+# ==================================
+*.pcd
+*.log
+
+# ==================================
 # Configuraciones locales
+# ==================================
 *.local
 .catkin_workspace
 .colcon_workspace
