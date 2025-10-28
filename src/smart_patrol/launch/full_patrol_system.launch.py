@@ -48,7 +48,7 @@ def generate_launch_description():
     
     wait_time_arg = DeclareLaunchArgument(
         'wait_time',
-        default_value='10.0',
+        default_value='5.0',
         description='Tiempo de espera en cada waypoint (segundos)'
     )
     ping_pong_mode_arg = DeclareLaunchArgument(
