@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Go2 Web Interface</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #eee;
+      text-align: center;
+      padding-top: 40px;
+    }
+
+    button {
+      background-color: #28a745;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 18px;
+      margin: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #0ff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐕 Unitree Go2 Web Control</h1>
+  <button id="homeButton">🏠 Ir al Home</button>
+  <div id="status">Conectando con el robot...</div>
+
+  <script>
+    // Conectamos con el servidor SocketIO (ajusta IP si estás en otra máquina)
+    const socket = io("http://localhost:5000");
+
+    const statusDiv = document.getElementById("status");
+    const homeButton = document.getElementById("homeButton");
+
+    socket.on("connect", () => {
+      statusDiv.textContent = "✅ Conectado al servidor Flask/WebSocket";
+    });
+
+    socket.on("disconnect", () => {
+      statusDiv.textContent = "❌ Desconectado del servidor";
+    });
+
+    // Escucha actualizaciones del robot (emitidas como 'robot_update')
+    socket.on("robot_update", (data) => {
+      console.log("📡 Estado del robot:", data);
+    });
+
+    // Cuando se hace clic en el botón
+    homeButton.addEventListener("click", () => {
+      socket.emit("go_home");
+      statusDiv.textContent = "📤 Comando enviado: Go Home";
+    });
+  </script>
+</body>
+</html>
+
