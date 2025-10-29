@@ -1,75 +1,124 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Go2 Web Interface</title>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #eee;
-      text-align: center;
-      padding-top: 40px;
-    }
-
-    button {
-      background-color: #28a745;
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 18px;
-      margin: 10px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #218838;
-    }
-
-    #status {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #0ff;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unitree Go2 Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+.container { max-width: 1200px; margin: auto; }
+.header { text-align: center; color: white; margin-bottom: 30px; }
+.status-indicator { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; }
+.connected { background: #22c55e; }
+.disconnected { background: #ef4444; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.card { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 20px; box-shadow:0 8px 24px rgba(0,0,0,0.1); }
+.card-title { font-weight:bold; font-size:1.2em; margin-bottom:15px; }
+.metric { display:flex; justify-content:space-between; margin:8px 0; }
+.battery-bar { height:30px; background:#e5e7eb; border-radius:20px; overflow:hidden; margin-top:10px; }
+.battery-fill { height:100%; color:white; text-align:center; font-weight:bold; line-height:30px; transition:width 0.4s ease; }
+.battery-fill.low{background:#ef4444;} .battery-fill.medium{background:#f59e0b;} .battery-fill.high{background:#22c55e;}
+.motors-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.motor-item{background:#f3f4f6;border-radius:8px;padding:10px;text-align:center;font-size:0.9em;}
+.motor-item.hot{background:#fee2e2;color:#991b1b;}
+.foot-grid{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:10px;}
+.foot-item{background:#f3f4f6;border-radius:10px;padding:15px;}
+.foot-item.active{background:#d1fae5;font-weight:bold;color:#065f46;}
+.timestamp{text-align:center;color:white;margin-top:20px;font-size:0.9em;opacity:0.8;}
+.config-panel{background:rgba(255,255,255,0.9);border-radius:12px;padding:15px;margin-bottom:20px;text-align:center;}
+.config-input{width:70%;padding:10px;border-radius:8px;border:1px solid #ccc;}
+.config-button{padding:10px 20px;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;margin-left:10px;}
+@media(max-width:768px){.motors-grid{grid-template-columns:repeat(2,1fr);}.foot-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
 </head>
 <body>
-  <h1>🐕 Unitree Go2 Web Control</h1>
-  <button id="homeButton">🏠 Ir al Home</button>
-  <div id="status">Conectando con el robot...</div>
+<div class="container">
+    <div class="header">
+        <h1>🤖 Unitree Go2 Dashboard</h1>
+        <div><span class="status-indicator disconnected" id="statusIndicator"></span><span id="statusText">Desconectado</span></div>
+    </div>
+    <div class="config-panel">
+        <input type="text" class="config-input" id="serverUrl" value="192.168.1.158">
+        <button class="config-button" onclick="connect()">Conectar</button>
+        <button class="config-button" style="background:#10b981" onclick="sendHome()">🏠 Ir a Home</button>
+    </div>
+    <div class="grid">
+    <!-- Primera fila: Batería, IMU, Contacto de patas -->
+    <div class="card">
+        <div class="card-title">🔋 Batería</div>
+        <div class="battery-bar"><div class="battery-fill" id="batteryFill" style="width:0%">0%</div></div>
+        <div class="metric"><span>Voltaje</span><span id="voltage">0.0 V</span></div>
+        <div class="metric"><span>Corriente</span><span id="current">0.0 A</span></div>
+    </div>
 
-  <script>
-    // Conectamos con el servidor SocketIO (ajusta IP si estás en otra máquina)
-    const socket = io("http://localhost:5000");
+    <div class="card">
+        <div class="card-title">🎯 IMU (Aceleración)</div>
+        <div class="metric"><span>X</span><span id="accelX">0.00</span></div>
+        <div class="metric"><span>Y</span><span id="accelY">0.00</span></div>
+        <div class="metric"><span>Z</span><span id="accelZ">0.00</span></div>
+    </div>
 
-    const statusDiv = document.getElementById("status");
-    const homeButton = document.getElementById("homeButton");
+    <div class="card">
+        <div class="card-title">🐾 Contacto de Patas</div>
+        <div class="foot-grid" id="footGrid">
+            <div class="foot-item" id="foot0">FR</div>
+            <div class="foot-item" id="foot1">FL</div>
+            <div class="foot-item" id="foot2">RR</div>
+            <div class="foot-item" id="foot3">RL</div>
+        </div>
+    </div>
+</div>
 
-    socket.on("connect", () => {
-      statusDiv.textContent = "✅ Conectado al servidor Flask/WebSocket";
-    });
+<!-- Segunda fila: Motores -->
+<div class="grid" style="margin-top:20px;">
+    <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title">⚙️ Temperatura de Motores</div>
+        <div class="motors-grid" id="motorsGrid"></div>
+    </div>
+</div>
 
-    socket.on("disconnect", () => {
-      statusDiv.textContent = "❌ Desconectado del servidor";
-    });
+    <div class="timestamp">Última actualización: <span id="timestamp">-</span></div>
+</div>
 
-    // Escucha actualizaciones del robot (emitidas como 'robot_update')
-    socket.on("robot_update", (data) => {
-      console.log("📡 Estado del robot:", data);
-    });
-
-    // Cuando se hace clic en el botón
-    homeButton.addEventListener("click", () => {
-      socket.emit("go_home");
-      statusDiv.textContent = "📤 Comando enviado: Go Home";
-    });
-  </script>
+<script>
+let socket = null;
+function connect(){
+    const ip = document.getElementById('serverUrl').value.trim();
+    if(socket) socket.disconnect();
+    socket = io(`http://${ip}:5000`);
+    socket.on('connect', ()=>updateConnection(true));
+    socket.on('disconnect', ()=>updateConnection(false));
+    socket.on('robot_update', data=>updateUI(data));
+}
+function updateConnection(connected){
+    document.getElementById('statusIndicator').className = `status-indicator ${connected?'connected':'disconnected'}`;
+    document.getElementById('statusText').textContent = connected?'Conectado':'Desconectado';
+}
+function updateUI(data){
+    const soc = data.battery.soc||0;
+    const fill = document.getElementById('batteryFill');
+    fill.style.width = soc+'%';
+    fill.textContent = soc+'%';
+    fill.className = 'battery-fill '+(soc<20?'low':soc<50?'medium':'high');
+    document.getElementById('voltage').textContent = data.battery.voltage.toFixed(2)+' V';
+    document.getElementById('current').textContent = data.battery.current.toFixed(2)+' A';
+    document.getElementById('accelX').textContent = data.imu.accelerometer[0].toFixed(2);
+    document.getElementById('accelY').textContent = data.imu.accelerometer[1].toFixed(2);
+    document.getElementById('accelZ').textContent = data.imu.accelerometer[2].toFixed(2);
+    const motors = data.motors||[];
+    document.getElementById('motorsGrid').innerHTML = motors.map(m=>`<div class="motor-item ${m.temperature>60?'hot':''}">${m.name}<br>${m.temperature}°C</div>`).join('');
+    if(data.foot_force){ data.foot_force.forEach((val,i)=>{const el=document.getElementById('foot'+i); val>5?el.classList.add('active'):el.classList.remove('active'); });}
+    document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleString('es-MX');
+}
+function sendHome(){ if(socket) socket.emit('home_command'); }
+window.onload = connect;
+</script>
 </body>
 </html>
-
